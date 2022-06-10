@@ -33,4 +33,4 @@ class Materia(models.Model):
 
     nombre = models.CharField(max_length=50)
     descripcion = models.CharField(max_length=100)
-    nivel = models.OneToOneField(Nivel,null=True,on_delete=models.CASCADE)
+    nivel_id = models.IntegerField(default=None)

@@ -5,8 +5,9 @@ from urllib import response
 from django.http import Http404, HttpResponse, JsonResponse
 from django.contrib.auth.hashers import make_password,check_password
 import numpy
-from .models import Nivel, User
+from .models import Nivel, User,Materia
 from cryptography.fernet import Fernet
+import json
 
 key = 'edSwgzGBesPsxxY2UGnBPrZdypNEedQbMY70JXvBWKQ=tnIrmHjyCSsO7WYlSbDF'
 token =  key
@@ -70,7 +71,7 @@ def verifyToken(request):
     if request.method == 'POST':
         web_token = request.POST.get('web_token')
         token = list(User.objects.filter(token_user=web_token).values())
-        if(web_token == token[0]['token_user']):
+        if(len(token)>0):
             response = {
                 'Message': 'El token ha sido verificado',
                 'Status': 1
@@ -85,7 +86,7 @@ def verifyToken(request):
 def niveles (request,id=0):
     if request.method == 'POST':
         if id == 0:
-            nombre = request.POST.get('nombre')
+            nombre = (request.POST.get('nombre')).strip()
             descripcion = request.POST.get('descripcion')
             nivel = list(Nivel.objects.filter(nombre=nombre).values())
             if len(nivel)>0:
@@ -108,7 +109,7 @@ def niveles (request,id=0):
             niveles = list(Nivel.objects.filter(id=id).values())
             if len(niveles)>0:
                 nivel = Nivel.objects.get(id=id)
-                nivel.nombre = request.POST.get('nombre')
+                nivel.nombre = (request.POST.get('nombre')).strip()
                 nivel.descripcion = request.POST.get('descripcion')
                 nivel.save()
                 response = {
@@ -160,12 +161,72 @@ def niveles (request,id=0):
     return JsonResponse(response)
 
 def materias (request,id=0):
-    print(request.method,id)
     if request.method == 'POST':
         if id > 0 :
-            response = {'Message':'esto es editar materias'}
-        else: 
-            response = {'Message':'esto agrega materias'}
+            print(request.body)
+            materia = Materia.objects.get(id=id)
+            nombre = (request.POST.get('nombre')).strip()
+            descripcion = request.POST.get('descripcion')
+            nivel = json.loads(request.POST.get('nivel'))
+            materia_object = list(Materia.objects.filter(nombre=nombre).values())
+            flag = True
+            for element in materia_object:
+                print(element['nivel_id'],nivel['value'])
+                if element['nivel_id'] == nivel['value']:
+                    flag = False
+                    break
+            if flag:
+                materia.nombre = nombre
+                materia.descripcion = descripcion
+                materia.nivel_id = nivel['value']
+                materia.save()
+                response = {
+                    'Message': 'La materia se actualizó',
+                    'Color': 'green',
+                    'Status': 1
+                }
+            else: 
+                response = {
+                    'Message':'No se pudo editar la materia',
+                    'Color': 'red',
+                    'Status': -1
+                }
+        else:
+            nombre = (request.POST.get('nombre')).strip()
+            descripcion = request.POST.get('descripcion')
+            nivel = json.loads(request.POST.get('nivel'))
+            materia = list(Materia.objects.filter(nombre=nombre).values())
+            flag = True
+            for element in materia:
+                if element['nivel_id'] == nivel['value']:
+                    flag = False
+                    break
+            if flag:
+                Materia.objects.create(
+                    nombre = nombre,
+                    descripcion = descripcion,
+                    nivel_id = nivel['value']
+                )
+                response = {
+                    'Message':'Materia creada exitosamente',
+                    'Color': 'green',
+                    'Status': 1
+                    }
+            else: 
+                response = {
+                    'Message': 'La materia ya existe',
+                    'Color': 'red',
+                    'Status': -1
+                }
+    if request.method == 'GET':
+        if id == 0:
+            data = list(Materia.objects.all().values())
+            for element in data:
+                aux = list(Nivel.objects.filter(id=element['nivel_id']).values())
+                element['nivel_label'] = aux[0]['nombre']
+            response = {
+                'Data': data
+            }
     return JsonResponse(response)
 
 def filtros (request):
