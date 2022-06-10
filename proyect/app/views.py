@@ -91,25 +91,44 @@ def verifyToken(request):
 
 def niveles (request,id=0):
     if request.method == 'POST':
-        nombre = request.POST.get('nombre')
-        descripcion = request.POST.get('descripcion')
-        nivel = list(Nivel.objects.filter(nombre=nombre).values())
-        if len(nivel)>0:
-            response = {
-                'Message': 'El nivel ya existe',
-                'Color': 'red',
-                'Status':-1
-            }
-        else:
-            Nivel.objects.create(
-                nombre = nombre,
-                descripcion = descripcion
-            )
-            response = {
-                'Message':'Nivel creado exitosamente',
-                'Color':'green',
-                'Status': 1
-            }
+        if id == 0:
+            nombre = request.POST.get('nombre')
+            descripcion = request.POST.get('descripcion')
+            nivel = list(Nivel.objects.filter(nombre=nombre).values())
+            if len(nivel)>0:
+                response = {
+                    'Message': 'El nivel ya existe',
+                    'Color': 'red',
+                    'Status':-1
+                }
+            else:
+                Nivel.objects.create(
+                    nombre = nombre,
+                    descripcion = descripcion
+                )
+                response = {
+                    'Message':'Nivel creado exitosamente',
+                    'Color':'green',
+                    'Status': 1
+                }
+        else: 
+            niveles = list(Nivel.objects.filter(id=id).values())
+            if len(niveles)>0:
+                nivel = Nivel.objects.get(id=id)
+                nivel.nombre = request.POST.get('nombre')
+                nivel.descripcion = request.POST.get('descripcion')
+                nivel.save()
+                response = {
+                    'Message': 'El nivel se ha actualizado',
+                    'Color': 'green',
+                    'Status': 1
+                }
+            else:
+                response = {
+                    'Message': 'No se encontró el nivel',
+                    'Color': 'red',
+                    'Status': -1
+                }
     if request.method == 'GET':
         if id > 0:
             nivel = list(Nivel.objects.filter(id=id).values())
