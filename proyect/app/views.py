@@ -11,13 +11,6 @@ from cryptography.fernet import Fernet
 key = 'edSwgzGBesPsxxY2UGnBPrZdypNEedQbMY70JXvBWKQ=tnIrmHjyCSsO7WYlSbDF'
 token =  key
 
-def authenticate(request):
-    if request.method == 'POST':
-        web_token = request.POST.get('web_token')
-        if web_token == token.decode():
-            return True
-    return False
-
 def login (request):
     if request.method == 'POST':
         email = request.POST.get('email')
@@ -163,5 +156,30 @@ def niveles (request,id=0):
                 'Message': 'No se encontró el nivel',
                 'Color': 'red',
                 'Status': -1
+            }
+    return JsonResponse(response)
+
+def materias (request,id=0):
+    print(request.method,id)
+    if request.method == 'POST':
+        if id > 0 :
+            response = {'Message':'esto es editar materias'}
+        else: 
+            response = {'Message':'esto agrega materias'}
+    return JsonResponse(response)
+
+def filtros (request):
+    if request.method == 'POST':
+        filtro = request.POST.get('filtro')
+        if request.POST.get('filtro') == 'niveles':
+            niveles = list(Nivel.objects.all().values())
+            data = []
+            for element in niveles:
+                data.append({
+                    'label' : element['nombre'],
+                    'id': element['id']
+                    })
+            response = {
+                'Data': data
             }
     return JsonResponse(response)
