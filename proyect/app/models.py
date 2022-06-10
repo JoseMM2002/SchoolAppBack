@@ -24,6 +24,7 @@ class UserData(models.Model):
     appelidoP = models.CharField(max_length=50)
     appelidoM = models.CharField(max_length=50)
     nivel = models.OneToOneField(Nivel,null=True,on_delete=models.CASCADE)
+    materias = models.JSONField(default=None)
 
 
 class Materia(models.Model):

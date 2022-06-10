@@ -23,8 +23,8 @@ def login (request):
         email = request.POST.get('email')
         password = request.POST.get('password')
         user = list(User.objects.filter(email = email).values())
-        bool = check_password(password=password,encoded=user[0]['password'])
         if(len(user)>0):
+            bool = check_password(password=password,encoded=user[0]['password'])
             if bool:
                 data = {
                     'Message':'Inicio de sesion',
@@ -76,8 +76,8 @@ def register (request):
 def verifyToken(request):
     if request.method == 'POST':
         web_token = request.POST.get('web_token')
-        token = User.objects.filter(token_user=web_token)
-        if(web_token == token):
+        token = list(User.objects.filter(token_user=web_token).values())
+        if(web_token == token[0]['token_user']):
             response = {
                 'Message': 'El token ha sido verificado',
                 'Status': 1
@@ -133,7 +133,7 @@ def niveles (request,id=0):
     if request.method == 'DELETE':
         nivel = list(Nivel.objects.filter(id=id))
         if len(nivel)>0:
-            # Nivel.delete(id=id)
+            Nivel.objects.filter(id=id).delete()
             response = {
                 'Message': 'Se eliminó el nivel',
                 'Color': 'green',

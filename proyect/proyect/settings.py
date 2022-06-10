@@ -54,7 +54,7 @@ MIDDLEWARE = [
 ]
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [ 
-    'http://localhost:8080'
+    'http://localhost:8082'
 ]
 ROOT_URLCONF = 'proyect.urls'
 
