@@ -86,6 +86,7 @@ def verifyToken(request):
 def niveles (request,id=0):
     if request.method == 'POST':
         if id == 0:
+            print('aqui')
             nombre = (request.POST.get('nombre')).strip()
             descripcion = request.POST.get('descripcion')
             nivel = list(Nivel.objects.filter(nombre=nombre).values())
